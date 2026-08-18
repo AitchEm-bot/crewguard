@@ -1,0 +1,33 @@
+// Batch screenshots for panels/states. Usage: node scripts/shots.mjs [w] [h] [prefix]
+import puppeteer from "puppeteer-core";
+const dir = "C:/Users/MIS/AppData/Local/Temp/claude/C--Users-MIS-Desktop-Coding-Projects-crewguard/54177d2b-f161-4087-b67a-835eb3e8c906/scratchpad/";
+const [,, w = "1600", h = "900", prefix = "p"] = process.argv;
+const browser = await puppeteer.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", headless: true,
+  args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"], defaultViewport: { width: Number(w), height: Number(h) } });
+const page = await browser.newPage();
+const logs = [];
+page.on("console", (m) => { if (["error", "warning"].includes(m.type())) logs.push(`[${m.type()}] ${m.text().slice(0, 300)}`); });
+page.on("pageerror", (e) => logs.push(`[pageerror] ${e.message}`));
+await page.goto(process.env.URL || "http://localhost:3000/", { waitUntil: "networkidle2", timeout: 60000 });
+await page.waitForFunction(() => window.__cgMap && window.__cgMap.loaded() && window.__cgSetTick, { timeout: 30000 });
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const shot = async (name) => { await page.waitForFunction(() => window.__cgMap.areTilesLoaded(), { timeout: 15000 }).catch(() => {}); await wait(700); await page.screenshot({ path: `${dir}${prefix}-${name}.png` }); };
+await page.evaluate(() => window.__cgSetTick(500));
+await wait(600);
+await shot("main");
+await page.click('button ::-p-text(Layer)'); await wait(350); await shot("layer");
+await page.keyboard.press("Escape"); await wait(150);
+await page.click('button ::-p-text(Day)'); await wait(350); await shot("day");
+await page.keyboard.press("Escape"); await wait(150);
+await page.click('button ::-p-text(Area)'); await wait(350); await shot("area");
+await page.keyboard.press("Escape"); await wait(150);
+await page.click('button[title="Ask the agent"]'); await wait(400);
+await page.click('button ::-p-text(Who is at most risk?)').catch(() => {}); await wait(300); await shot("chat");
+await page.keyboard.press("Escape"); await wait(150);
+await page.click("button[title=\"Hide details (D)\"]"); await wait(700); await shot("focus");
+await page.click("button[title=\"Show details (D)\"]"); await wait(700);
+await page.click('button[title="Crew"]'); await wait(400); await shot("fleet");
+await page.click('button[title="Decision ledger"]'); await wait(400); await shot("ledger");
+await page.keyboard.press("Escape");
+console.log(logs.join("\n") || "no errors");
+await browser.close();

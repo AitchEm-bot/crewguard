@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+:root {
+  --sage: #b3cbca;
+  --sage-2: #a5c1c0;
+  --frame: #ffffff;
+  --card: #ffffff;
+  --tile: #f3f5f3;
+  --tile-2: #eaeeeb;
+  --ink: #111214;
+  --ink-2: #2a2d31;
+  --muted: #7b8385;
+  --muted-2: #a2a9aa;
+  --line: #e6eae8;
+  --amber: #f2b233;
+  --amber-2: #f5c65c;
+  --orange: #f0812e;
+  --red: #e5484d;
+  --green: #4fb07a;
+  --green-tint: #dde9d6;
+  --shadow: 0 10px 30px -12px rgba(20, 40, 40, 0.25), 0 2px 6px -2px rgba(20, 40, 40, 0.08);
+  --shadow-soft: 0 6px 20px -10px rgba(20, 40, 40, 0.22);
+}
+
+@theme inline {
+  --color-sage: var(--sage);
+  --color-frame: var(--frame);
+  --color-card: var(--card);
+  --color-tile: var(--tile);
+  --color-tile-2: var(--tile-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-line: var(--line);
+  --color-amber: var(--amber);
+  --color-amber-2: var(--amber-2);
+  --color-orange: var(--orange);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-green-tint: var(--green-tint);
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --radius-frame: 28px;
+  --radius-card: 22px;
+  --radius-tile: 16px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  background: radial-gradient(120% 90% at 20% 0%, #c3d8d6 0%, var(--sage) 45%, var(--sage-2) 100%);
+  color: var(--ink);
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* the app frame: soft glass gradient (white → sage tint → warm peach), like the reference */
+.cg-frame {
+  background:
+    radial-gradient(90% 60% at 100% 100%, rgba(250, 232, 220, 0.85) 0%, rgba(250, 232, 220, 0) 60%),
+    radial-gradient(70% 55% at 0% 0%, rgba(214, 233, 222, 0.95) 0%, rgba(214, 233, 222, 0) 65%),
+    linear-gradient(165deg, #ffffff 0%, #f1f6f2 45%, #eaf1ec 100%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+/* map chrome */
+.maplibregl-ctrl-attrib { font-size: 10px; background: rgba(255,255,255,0.75) !important; border-radius: 8px 0 0 0; }
+.maplibregl-ctrl-attrib a { color: var(--muted); }
+.maplibregl-canvas { outline: none; }
+.maplibregl-marker { will-change: transform; }
+
+/* scrollbars */
+.scroll-thin { scrollbar-width: thin; scrollbar-color: #d7dedc transparent; }
+.scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #d7dedc; border-radius: 6px; }
+
+/* range slider */
+input[type="range"].cg-range { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 999px; background: var(--tile-2); outline: none; }
+input[type="range"].cg-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer; }
+input[type="range"].cg-range::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--ink); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer; }
+input[type="range"].cg-range.amber::-webkit-slider-thumb { background: var(--amber); }
+input[type="range"].cg-range.amber::-moz-range-thumb { background: var(--amber); }
+
+/* worker pin */
+.cg-pin { position: relative; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: transform .2s ease; }
+.cg-pin::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; background: var(--pin, var(--amber)); opacity: .28; transition: inset .25s ease, opacity .25s ease; }
+.cg-pin::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--pin, var(--amber)); box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.cg-pin > span { position: relative; z-index: 1; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.cg-pin.selected { transform: scale(1.18); }
+.cg-pin.selected::before { inset: -14px; opacity: .32; }
+.cg-pin.pulse::before { animation: cg-pulse 1.8s ease-out infinite; }
+@keyframes cg-pulse { 0% { inset: -6px; opacity: .45 } 100% { inset: -22px; opacity: 0 } }
+
+.cg-poi { width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid var(--green); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+.cg-stop { width: 8px; height: 8px; border-radius: 50%; background: #fff; border: 2px solid var(--ink); opacity: .9; }
+.cg-stop.done { background: var(--ink); opacity: .35; }
+.cg-depot { width: 14px; height: 14px; border-radius: 4px; background: var(--ink); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+
+.fade-in { animation: cg-fade .35s ease both; }
+@keyframes cg-fade { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+.slide-in { animation: cg-slide .3s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes cg-slide { from { opacity: 0; transform: translateX(-16px) } to { opacity: 1; transform: none } }
+.pop-in { animation: cg-pop .25s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes cg-pop { from { opacity: 0; transform: translateY(8px) scale(.98) } to { opacity: 1; transform: none } }
